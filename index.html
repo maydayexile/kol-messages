@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL 聯繫訊息工具 — 日光山茶屋</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE7;
+    --border: #E0DAD2;
+    --border2: #C8C0B4;
+    --text: #1A1714;
+    --text2: #5C5650;
+    --text3: #9C968E;
+    --accent: #7B6B52;
+    --accent-light: #EDE8E0;
+    --accent-hover: #5E5140;
+    --success: #3D7A5C;
+    --success-bg: #EAF4EE;
+    --tw-color: #C85A3A;
+    --jp-color: #4A6B9C;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.03em;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    margin-left: 10px;
+  }
+
+  .main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.75rem;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 8px 22px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    transition: all 0.18s;
+    font-weight: 400;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* ── Section labels ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin: 2rem 0 0.75rem;
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* ── Message Card ── */
+  .msg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+    overflow: hidden;
+  }
+
+  .msg-card:hover { border-color: var(--border2); }
+
+  .msg-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 12px;
+  }
+
+  .msg-meta { flex: 1; min-width: 0; }
+
+  .msg-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .msg-subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* ── Expand / Content area ── */
+  .msg-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 8px 16px;
+    text-align: left;
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.12s;
+  }
+
+  .msg-toggle:hover { background: var(--surface2); color: var(--text2); }
+
+  .msg-body {
+    display: none;
+    padding: 0 16px 14px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .msg-body.open { display: flex; }
+
+  /* ── Editable textarea ── */
+  .msg-textarea {
+    width: 100%;
+    min-height: 140px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--surface2);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .msg-textarea:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .lang-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  /* ── Copy buttons ── */
+  .btn-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text2);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+  }
+
+  .copy-btn.copied {
+    background: var(--success-bg);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  /* icon via unicode arrow/check */
+  .icon-copy::before { content: '⧉'; margin-right: 2px; font-size: 12px; }
+  .icon-check::before { content: '✓'; margin-right: 2px; }
+
+  /* ── Header copy-group (before expand) ── */
+  .header-btns {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .header-btns .copy-btn {
+    font-size: 12px;
+    padding: 5px 11px;
+  }
+
+  /* ── Edit mode notice ── */
+  .edit-notice {
+    background: #FFF8EC;
+    border: 1px solid #E8D5A0;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #7A6020;
+    margin-bottom: 1.5rem;
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .edit-notice.show { display: flex; }
+  .edit-notice strong { font-weight: 500; }
+
+  /* ── Panel hidden ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .main { padding: 1.25rem 1rem 3rem; }
+    header { padding: 0 1rem; }
+    .header-subtitle { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;">
+    <span class="header-title">日光山茶屋 KOL 聯繫訊息</span>
+    <span class="header-subtitle">一鍵複製工具</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tw')">🇹🇼 台灣 KOL</button>
+    <button class="tab" onclick="switchTab('jp')">🇯🇵 日本 KOL</button>
+  </div>
+
+  <div id="tw-panel" class="panel active"></div>
+  <div id="jp-panel" class="panel"></div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   ✏️  訊息資料 — 要修改文字請直接改這裡
+   ═══════════════════════════════════════════════ */
+
+const TW_MESSAGES = [
+  {
+    section: "聯繫初期",
+    items: [
+      {
+        title: "1. 聯繫詢問",
+        subtitle: "第一次聯繫時使用",
+        content: `您好，我是Bess，有倍思行銷執行負責人。目前有一間位於宜蘭礁溪的「日光山茶屋」由我協助客戶聯繫KOL合作事宜。以下為案件簡介：
+
+合作方式(以下3擇1，以1優先，可分開或混搭報價)
+．IG Reels一則 / 轉發到IG動態牆 / 限動
+．IG 圖文一則 / 限時動態兩則
+．BLOG文章一篇 / 轉發FB
+．同步發佈到其他平台，例如：Threads
+．開放廣告主權限或廣告合作代碼
+．圖片及文字授權廣告素材使用
+
+合作產品
+．日光山茶屋：除了茶水服務費，菜單可任選滿$1500
+．地址：宜蘭縣礁溪鄉興農路322巷6號
+．人數：除了KOL本人，可攜帶至多3人，皆安排包廂
+
+時間
+．體驗時間：2026-4-15 至 2026-6-15
+．審稿期限：體驗後兩週內
+．上線時間：審稿後一週內
+＊以上時間可議後彈性調整
+
+主要特色：
+宜蘭最新私房景點，座落於礁溪，天氣晴朗時可於茶屋四樓遠眺龜山島。「日光山茶屋」除了各式茶葉，茶屋主人更精心挑選了茶具，及各具特色的品茶空間。旅客來到這裡，不僅可以品嚐茶香，更能透過茶的儀式感，放慢腳步，與自己對話，在茶香氤氳中重新發現生活的詩意和美好。目前到館內飲茶，還能免費參觀對面的「呂美麗精雕藝術館」
+
+詳細的案件介紹可點選連結
+https://reurl.cc/eyGA5Q
+
+若您對於此案件有興趣，可依您擅長的項目「報價」。
+如果有需要討論細節，也可加我的line: besswuwu
+靜候您的回覆，謝謝`
+      },
+      {
+        title: "2-1. 追蹤 — 原平台",
+        subtitle: "發訊2天後，在原平台跟進",
+        content: `哈囉您好，2天前有寄合作邀請給你。怕被訊息沖掉，再跟進確認一次 🙏
+
+若您有興趣，可以提供合作項目報價；若目前檔期較滿，也歡迎告知，之後有機會再合作，謝謝！`
+      },
+      {
+        title: "2-2. 追蹤 — 換平台聯繫",
+        subtitle: "改用其他管道跟進",
+        content: `您好，我是先前在 IG 透過私訊與您聯繫合作邀約的窗口Bess。因 IG 訊息有時會進入陌生訊息夾，為避免錯過，因此在這邊再補充一次聯繫。
+
+若您有興趣，可以提供合作項目報價；若目前行程較滿，也歡迎告知～之後有機會再合作，謝謝您！`
+      },
+      {
+        title: "2-3. 追蹤 — 收到報價",
+        subtitle: "對方已回覆報價",
+        content: `已收到您的報價與合作資訊，謝謝❤️
+
+目前需要約 7–10 天彙整提案內容，並向業主進行提報。
+若有進一步合作確認，會立即與您連繫，感謝耐心等候！`
+      },
+      {
+        title: "2-4. 追蹤 — 對方婉拒",
+        subtitle: "對方表示檔期已滿",
+        content: `您好，感謝您回覆！也理解目前檔期已滿🙏
+我們非常喜歡您的風格，也覺得和品牌調性很契合。
+
+若您方便的話，也歡迎先提供合作報價，讓我們這邊能預留資料，未來有剛好適合的檔期時，也能更快速與您接洽。
+
+之後若有合作機會，我們會非常期待，再麻煩您了💛
+祝工作順心、創作順利！`
+      }
+    ]
+  },
+  {
+    section: "確認合作",
+    items: [
+      {
+        title: "3. 初步敲定",
+        subtitle: "提報通過，確認合作細節",
+        content: `嗨嗨您好，我這裡已提報通過。
+跟您確認以下事項，沒問題就可簽約喔。
+
+1. 合作內容：
+- IG Reels+3則限動
+- 分享至FB、threads、臉書社團
+- 開放廣告主權限或提供廣告合作代碼
+
+2. 合作費用：$5000
+3. 時間安排：2024/9/30
+
+等候您的回覆喔！`
+      },
+      {
+        title: "4. 簽約準備",
+        subtitle: "請對方提供個人資料",
+        content: `麻煩提供以下資料，我來出合約喔
+1. 姓名：
+2. 身分證字號：
+3. 手機：
+4. 地址：
+5. 匯款帳號：
+6. 身分證正反面影本(勞報單用)`
+      },
+      {
+        title: "5. 提供合約",
+        subtitle: "合約連結及注意事項",
+        content: `哈囉～合約在這邊
+https://reurl.cc/0aEzqY
+
+。P2的合約跟P7的勞報單麻煩簽名，直接給電子簽名也可以
+。勞報單可以現在提供身分證影本也可以等到結案時再提供
+。P3~P6的附件有案件的詳細介紹，體驗前麻煩看看重點喔
+。目前主推的活動，可以看P5紅字加粗處說明
+。簽名後可回傳besswu615@gmail.com
+
+❗❗請注意❗❗
+。請於體驗時間前回傳簽名合約
+。請勿攜帶合約至現場`
+      }
+    ]
+  },
+  {
+    section: "體驗與交稿",
+    items: [
+      {
+        title: "6. 體驗前提醒",
+        subtitle: "體驗前一天發送",
+        content: `提醒您，明天12/3(二)18:00到現場若有問題可以找「簡惠芳」小姐，麻煩務必攜帶身分證以利核銷(結帳金額折抵1500，超額部分自付)
+
+Google導航：https://bit.ly/3Q9qcah
+
+若現場有任何問題可聯繫我
+0919-182538 吳小姐 Bess
+
+其它內容可以參閱案件介紹，再麻煩您多著墨囉！`
+      },
+      {
+        title: "7. 體驗後提醒",
+        subtitle: "體驗後當天或隔天發送",
+        content: `哈囉～您好，謝謝昨日前往體驗。
+
+不知道過程是否順利？若有不足之處需要我們改善或調整的地方，再請不吝提出。後續再麻煩您囉！
+
+在撰稿之前提醒您，IG Reels 請勿使用版權音樂和第三方特效，若有將無法進行廣告加強推廣。
+
+官方建議使用免權利金音樂來進行推廣，例如 Meta 聲音資料庫中的音樂或原創音訊。
+
+我這裡之前的合作經驗，有些KOL會自行匯入其他音樂。給您參考，若有任何問題我們可以再討論。
+
+靜候您的作品，謝謝～`
+      }
+    ]
+  },
+  {
+    section: "結案",
+    items: [
+      {
+        title: "8. 結案 — 確認發布",
+        subtitle: "內容審核通過，請對方安排發布",
+        content: `您好，
+內容已確認沒問題，可安排時間發佈。
+
+麻煩發佈後提供相關的連結（包含轉發）
+這裡會協助進行下一步作業，謝謝～`
+      },
+      {
+        title: "9. 結案 — 補齊作業",
+        subtitle: "請對方完成最後收尾",
+        content: `您好，麻煩再完成以下作業，我們就能結案囉
+1. 臉書、抖音、小紅書轉發連結
+2. meta已申請廣告主權限，麻煩接受邀請
+3. 圖片、影片麻煩上傳至 https://reurl.cc/XaALZj`
+      },
+      {
+        title: "10. 婉拒合作",
+        subtitle: "主動婉拒對方的合作",
+        content: `哈囉您好，不好意思讓您久等了！
+
+經過內部討論與整體規劃考量，因本季的行銷資源有限，目前無法安排進一步的合作，還請您見諒。
+
+不過，我們非常珍惜與您的聯繫，也已將您的資料留存於合作名單中。若未來有合適的專案或時機，一定會主動與您聯繫，期望日後有機會合作。
+
+再次感謝您的理解與支持，並祝您一切順利、創作豐收！`
+      }
+    ]
+  }
+];
+
+/* ── 日本 KOL 訊息 ── */
+const JP_MESSAGES = [
+  {
+    section: "聯繫初期",
+    items: [
+      {
+        title: "1. 私訊詢問",
+        subtitle: "第一次聯繫（中文 + 日文）",
+        zh: `您好，我是Bess，請問您對於旅遊類的合作有沒有興趣呢？
+
+這裡是宜蘭的「日光山茶屋」，如果您有興趣，不知道是否有 Email 信箱，我再把案件介紹發送給您參考。`,
+        ja: `こんにちは、Bessと申します。
+
+もしご興味があれば、お伺いしたいのですが、旅行系のコラボレーションにご関心はございますか？
+
+こちらは、台湾・宜蘭にある「日光山茶屋」というお店です。
+
+もしご興味をお持ちいただけましたら、案件の詳細をお送りしたいので、よろしければメールアドレスを教えていただけますでしょうか？`
+      },
+      {
+        title: "2. 聯繫追蹤",
+        subtitle: "未收到回覆時跟進（中文 + 日文）",
+        zh: `您好，不好意思打擾了～
+這邊是 Bess，日前有透過 email 寄信與您聯繫關於合作的事宜，不確定您是否有收到？
+如果方便的話，也歡迎回信或直接透過這邊聯繫我喔！
+謝謝您，期待您的回覆☺️`,
+        ja: `こんにちは、突然のご連絡失礼いたします。
+Bessと申します。先日、コラボに関するご相談でメールをお送りしたのですが、ご確認いただけましたでしょうか？
+もしお手すきの際にご返信いただけますと幸いです。
+こちらのメッセージからご連絡いただいても大丈夫ですので、どうぞよろしくお願いいたします☺️`
+      },
+      {
+        title: "3. 時程無法配合",
+        subtitle: "對方拍攝時程有衝突",
+        zh: `您好，謝謝您的回覆！
+由於我們每一季的行銷預算有限，若您方便的話，也歡迎您先提供目前的合作報價，以便我們在現階段進行初步評估。
+若後續有合作的可能，屆時再根據實際情況調整報價也完全沒問題。
+
+另外，即使您的拍攝時間較晚，超出我們原先預估的執行時程，但我們也非常歡迎未來的合作。
+
+是否可以請您在那段時間接近時再與我們聯繫？
+或我們也可以主動在您方便的時點再次與您聯繫，確認是否有合作機會。
+
+期待有緣能合作，若有任何問題也歡迎隨時告知。
+再次謝謝您！`,
+        ja: `こんにちは。ご返信いただきありがとうございます！
+
+弊社では四半期ごとにマーケティング予算を組んでおり、現在の状況に応じて検討を行っております。
+
+もし可能でしたら、現在のご希望のご料金をご共有いただけますと、現段階での初期的な検討に役立てることができます。
+
+今後、具体的なコラボレーションが見えてきた段階で、改めて内容に応じた調整をさせていただくことももちろん可能です。
+
+また、もし撮影時期が当初のスケジュールより遅くなる場合でも、今後のご縁を大切にしたいと思っております。
+
+その時期が近づきましたら、再度ご連絡いただけますと幸いですし、こちらから改めてご連絡させていただくことも可能です。
+
+ご縁がありましたら、ぜひご一緒できれば嬉しく思います。
+
+何かご不明点やご相談がありましたら、いつでもお気軽にご連絡ください。
+
+改めまして、このたびはご連絡いただき誠にありがとうございました。`
+      }
+    ]
+  },
+  {
+    section: "回覆報價",
+    items: [
+      {
+        title: "4. 收到婉拒後致謝",
+        subtitle: "對方婉拒時回覆",
+        zh: `您好，謝謝您的回覆與溫暖的訊息。
+
+了解您目前的行程安排，也非常感謝您撥空回覆我們。
+若未來您有安排前來宜蘭的行程，我們仍然非常歡迎您來日光山茶屋走走、品茶放鬆。
+也請您屆時隨時與我聯繫，我們會很樂意接待您！
+
+期待未來有機會能與您合作，祝您一切順利！`,
+        ja: `こんにちは。ご丁寧なご返信、そして温かいお言葉をありがとうございます。
+
+現在のご予定について承知いたしました。お忙しい中ご連絡いただき、心より感謝申し上げます。
+
+もし今後、宜蘭にお越しになるご予定がございましたら、ぜひ日光山茶屋にもお立ち寄りください。
+その際はお気軽にご連絡いただけましたら、とても嬉しく思います。喜んでご案内させていただきます。
+
+またご一緒できる機会がございましたら幸いです。
+今後のご活躍を心よりお祈りしております。`
+      },
+      {
+        title: "5. 收到報價後致謝",
+        subtitle: "收到報價，告知等候評估",
+        zh: `您好，謝謝您的回覆！
+
+我們會根據目前的規劃與需求，評估現階段適合的合作夥伴。
+還請您稍候，待確認後，會再主動和您聯繫。
+
+如果有需要了解的地方，也會再向您請教～
+再次感謝您的回覆！`,
+        ja: `こんにちは、ご返信ありがとうございます。
+
+現在の企画やニーズに基づき、現時点で適したコラボレーションパートナーを検討させていただきます。
+
+ご確認まで少々お時間をいただけますと幸いです。決まり次第、こちらから改めてご連絡いたします。
+
+もし追加で確認させていただきたいことがございましたら、またご連絡させていただきます。
+
+改めまして、ご丁寧なご返信に心より感謝申し上げます。`
+      }
+    ]
+  },
+  {
+    section: "婉拒",
+    items: [
+      {
+        title: "6. 婉拒主動詢問",
+        subtitle: "對方主動詢問，我方婉拒",
+        zh: `您好，感謝您主動與我們聯繫並關注本次合作提案。
+
+經過內部討論與整體規劃考量，因本季的行銷資源有限，我們目前無法安排進一步的合作，還請您多多見諒。
+
+不過，我們非常珍惜這次的交流，也已將您的資料留存於合作名單中。
+
+若未來有適合的專案或時機，我們一定會主動與您聯繫，期盼日後有機會能與您攜手合作。
+
+再次感謝您的理解與支持，祝您一切順利、創作豐收！`,
+        ja: `こんにちは。
+
+このたびはご連絡いただき、また本コラボレーションにご関心をお寄せいただき、誠にありがとうございます。
+
+社内で検討を重ねた結果、今期のマーケティングリソースが限られていることから、今回はご一緒させていただくことが難しい状況となりました。何卒ご理解いただけますと幸いです。
+
+とはいえ、今回のご縁を大変ありがたく思っており、いただいたご連絡やご提案の内容は大切に保存させていただいております。今後、別の企画やタイミングでご一緒できる機会がございましたら、こちらからあらためてご連絡させていただきます。
+
+あらためまして、この度のご理解とご配慮に心より感謝申し上げます。
+
+今後のご活躍とご健勝をお祈りしております。`
+      },
+      {
+        title: "7. 主動回覆婉拒",
+        subtitle: "我方主動聯繫後決定婉拒",
+        zh: `您好，
+
+不好意思讓您久等了！
+
+經過內部討論與整體規劃考量，因本季的行銷資源有限，我們目前無法安排進一步的合作，還請您見諒。
+
+不過，我們非常珍惜與您的聯繫，也已將您的資料留存於合作名單中。
+
+若未來有合適的專案或時機，我們一定會主動與您聯繫，期望日後有機會能攜手合作。
+
+再次感謝您的理解與支持，並祝您一切順利、創作豐收！`,
+        ja: `こんにちは。
+
+ご返信が遅くなり、大変申し訳ございません。
+
+社内での検討および全体的な計画の結果、今シーズンのマーケティングリソースには限りがあるため、今回はご一緒することが難しい状況です。何卒ご理解いただけますと幸いです。
+
+とはいえ、今回ご連絡いただけたことを大変ありがたく思っており、今後の参考として情報を大切に保管させていただきます。
+
+将来的に適した企画やタイミングがございましたら、こちらからぜひご連絡させていただきたいと考えております。今後またご一緒できる機会がございましたら嬉しく思います。
+
+この度はご理解とご配慮をいただき、誠にありがとうございました。今後のご活躍とご成功を心よりお祈り申し上げます。`
+      }
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════════
+   UI 渲染邏輯（一般不需要修改）
+   ═══════════════════════════════════════════════ */
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="icon-check"></span>已複製';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2200);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="icon-check"></span>已複製';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2200);
+  });
+}
+
+function copyFromTextarea(textareaId, btn) {
+  const ta = document.getElementById(textareaId);
+  copyText(ta.value, btn);
+}
+
+let cardCounter = 0;
+
+function buildTwCard(item) {
+  const id = 'card-' + (++cardCounter);
+  const taId = 'ta-' + id;
+  const escaped = item.content.replace(/`/g, '\\`');
+
+  return `
+  <div class="msg-card">
+    <div class="msg-header">
+      <div class="msg-meta">
+        <div class="msg-title">${item.title}</div>
+        <div class="msg-subtitle">${item.subtitle}</div>
+      </div>
+      <div class="header-btns">
+        <button class="copy-btn" onclick="copyText(\`${escaped}\`, this)">
+          <span class="icon-copy"></span>快速複製
+        </button>
+      </div>
+    </div>
+    <button class="msg-toggle" onclick="toggleBody('${id}')">
+      <span id="toggle-icon-${id}">▸</span> 展開編輯
+    </button>
+    <div class="msg-body" id="${id}">
+      <textarea class="msg-textarea" id="${taId}">${item.content}</textarea>
+      <div class="btn-group">
+        <button class="copy-btn" onclick="copyFromTextarea('${taId}', this)">
+          <span class="icon-copy"></span>複製（含修改）
+        </button>
+        <button class="copy-btn" onclick="resetTextarea('${taId}', \`${escaped}\`, this)">
+          ↺ 還原原文
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildJpCard(item) {
+  const id = 'card-' + (++cardCounter);
+  const taZhId = 'ta-zh-' + id;
+  const taJaId = 'ta-ja-' + id;
+  const escapedZh = item.zh.replace(/`/g, '\\`');
+  const escapedJa = item.ja.replace(/`/g, '\\`');
+  const escapedBoth = (item.zh + '\n\n---\n\n' + item.ja).replace(/`/g, '\\`');
+
+  return `
+  <div class="msg-card">
+    <div class="msg-header">
+      <div class="msg-meta">
+        <div class="msg-title">${item.title}</div>
+        <div class="msg-subtitle">${item.subtitle}</div>
+      </div>
+      <div class="header-btns">
+        <button class="copy-btn" onclick="copyText(\`${escapedZh}\`, this)"><span class="icon-copy"></span>中文</button>
+        <button class="copy-btn" onclick="copyText(\`${escapedJa}\`, this)"><span class="icon-copy"></span>日文</button>
+        <button class="copy-btn" onclick="copyText(\`${escapedBoth}\`, this)"><span class="icon-copy"></span>全部</button>
+      </div>
+    </div>
+    <button class="msg-toggle" onclick="toggleBody('${id}')">
+      <span id="toggle-icon-${id}">▸</span> 展開編輯
+    </button>
+    <div class="msg-body" id="${id}">
+      <div>
+        <div class="lang-label">中文版</div>
+        <textarea class="msg-textarea" id="${taZhId}">${item.zh}</textarea>
+        <div class="btn-group" style="margin-top:6px;">
+          <button class="copy-btn" onclick="copyFromTextarea('${taZhId}', this)"><span class="icon-copy"></span>複製中文</button>
+          <button class="copy-btn" onclick="resetTextarea('${taZhId}', \`${escapedZh}\`, this)">↺ 還原</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="lang-label">日文版</div>
+        <textarea class="msg-textarea" id="${taJaId}">${item.ja}</textarea>
+        <div class="btn-group" style="margin-top:6px;">
+          <button class="copy-btn" onclick="copyFromTextarea('${taJaId}', this)"><span class="icon-copy"></span>複製日文</button>
+          <button class="copy-btn" onclick="resetTextarea('${taJaId}', \`${escapedJa}\`, this)">↺ 還原</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleBody(id) {
+  const body = document.getElementById(id);
+  const icon = document.getElementById('toggle-icon-' + id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  icon.textContent = isOpen ? '▸' : '▾';
+  const btn = body.previousElementSibling;
+  btn.querySelector('span + span, span:last-child') || null;
+  btn.childNodes[1].textContent = isOpen ? ' 展開編輯' : ' 收起';
+}
+
+function resetTextarea(taId, original, btn) {
+  document.getElementById(taId).value = original;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ 已還原';
+  setTimeout(() => { btn.innerHTML = orig; }, 1500);
+}
+
+function renderPanel(messages, panelId, builder) {
+  const panel = document.getElementById(panelId);
+  let html = '';
+  messages.forEach(section => {
+    html += `<div class="section-label">${section.section}</div>`;
+    section.items.forEach(item => { html += builder(item); });
+  });
+  panel.innerHTML = html;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById('tw-panel').classList.toggle('active', tab === 'tw');
+  document.getElementById('jp-panel').classList.toggle('active', tab === 'jp');
+}
+
+renderPanel(TW_MESSAGES, 'tw-panel', buildTwCard);
+renderPanel(JP_MESSAGES, 'jp-panel', buildJpCard);
+</script>
+</body>
+</html>
