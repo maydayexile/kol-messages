@@ -748,7 +748,7 @@ function renderToolResources(config) {
   if (config.searchKeywords && config.searchKeywords.length > 0) {
     rows.push(`
       <div class="resource-row">
-        <div class="resource-label">搜尋關鍵字</div>
+        <div class="resource-label">搜尋字組</div>
         <div class="keyword-list">
           ${config.searchKeywords.map((keyword) => `<span class="keyword-chip">${escapeHtml(keyword)}</span>`).join('')}
         </div>
@@ -765,7 +765,7 @@ function renderToolResources(config) {
       : '';
     rows.push(`
       <div class="resource-row">
-        <div class="resource-label">企劃書連結</div>
+        <div class="resource-label">常用文件</div>
         <div class="resource-links">
           ${config.resources.map((link) => renderLink(link, 'resource-link')).join('')}
           ${resourceNotes}
@@ -814,8 +814,20 @@ const CLIENT_CONFIG = {
   ],
   "resources": [
     {
-      "label": "案件介紹",
+      "label": "企劃書_案件介紹",
       "url": "https://reurl.cc/K2aOYM"
+    },
+    {
+      "label": "KOL 聯繫名單",
+      "url": "https://docs.google.com/spreadsheets/d/1di9MPOansHtZmen1b5LsyOvcJ7NBAiAymjr7swUO4x0/edit?usp=sharing"
+    },
+    {
+      "label": "合約生成表單",
+      "url": "https://forms.gle/JXSvGkHLBSmKfsjC8"
+    },
+    {
+      "label": "KOL 合約 PDF",
+      "url": "https://drive.google.com/drive/folders/1tT8J3L1fGSVmibWUrbYq3_sSIJjGrMGs"
     },
     {
       "label": "品牌官網",
@@ -832,7 +844,7 @@ const CLIENT_CONFIG = {
           "subtitle": "第一次聯繫時使用",
           "links": [
             {
-              "label": "KOL 名單",
+              "label": "KOL 聯繫名單",
               "url": "https://docs.google.com/spreadsheets/d/1di9MPOansHtZmen1b5LsyOvcJ7NBAiAymjr7swUO4x0/edit?usp=sharing",
               "note": "新增 KOL"
             },
@@ -882,7 +894,7 @@ const CLIENT_CONFIG = {
           "code": "03C",
           "title": "對方婉拒",
           "subtitle": "對方表示目前不方便合作",
-          "content": "您好，感謝您回覆！也理解目前暫時不方便合作🙏\n\n我們非常喜歡您的內容風格，也覺得和品牌調性很有機會契合。\n若未來有適合的合作檔期，期待還有機會再與您聯繫。\n\n祝工作順心、創作順利！"
+          "content": "您好，感謝您回覆！也理解目前暫時不方便合作🙏\n\n我們非常喜歡您的內容風格，也覺得和品牌調性很契合。\n若未來有適合的合作檔期，期待還有機會再與您聯繫。\n\n祝工作順心、創作順利！"
         },
         {
           "code": "04",
@@ -926,7 +938,7 @@ const CLIENT_CONFIG = {
             {
               "label": "合約 PDF 檔案",
               "url": "https://drive.google.com/drive/folders/1tT8J3L1fGSVmibWUrbYq3_sSIJjGrMGs",
-              "note": "請合併合約附件"
+              "note": "請合併合約附件(企劃書)"
             }
           ],
           "notes": [
@@ -949,7 +961,7 @@ const CLIENT_CONFIG = {
           "code": "08",
           "title": "商品寄出提醒",
           "subtitle": "樣品寄出後發送",
-          "content": "您好，印茴的體驗商品已安排寄出囉。\n\n這次會依確認的合作商品安排寄出。\n\n收到後可以先依自己的生活情境試用，內容可著重在香氣感受、日常照護、儀式感、外出隨身使用或身心狀態整理等感受。\n\n提醒，文案請避免醫療療效、保證轉運或絕對性效果等說法，但可由個人經驗視角出發。\n\n若商品收件或使用上有任何問題，可隨時聯繫我\n(窗口電話) (窗口暱稱)"
+          "content": "您好，印茴的體驗商品已安排寄出囉。\n\n收到後可以先依自己的生活情境試用，內容可著重在香氣感受、日常照護、儀式感、外出隨身使用或身心狀態整理等感受。\n\n提醒，文案請避免醫療療效、保證轉運或絕對性效果等說法，但可由個人經驗視角出發。\n\n若商品收件或使用上有任何問題，可隨時聯繫我\n(窗口電話) (窗口暱稱)"
         },
         {
           "code": "09",
@@ -959,7 +971,7 @@ const CLIENT_CONFIG = {
             {
               "label": "KOL 聯繫名單",
               "url": "https://docs.google.com/spreadsheets/d/1di9MPOansHtZmen1b5LsyOvcJ7NBAiAymjr7swUO4x0/edit?usp=sharing",
-              "note": "補上專屬折扣碼與專屬連結"
+              "note": "補上專屬導購連結或折扣碼"
             }
           ],
           "content": "哈囉～您好，提醒您這次印茴合作上線前，內容中需要放入：\n\n1. 專屬導購連結：(上線前提供)\n2. 專屬折扣碼：(上線前提供)\n3. 品牌標註：FB @印茴 - 溫暖又療癒的芳療品牌 / IG @ajowanspa\n\n內容可以著重：\n。合作商品的使用情境\n。香氣、質地、包裝或使用方式\n。生活情境與個人真實感受\n\n提醒：請避免醫療療效、保證轉運或絕對性效果等不實或誇大說法，但可由個人經驗視角出發。\n\n發佈後再麻煩提供貼文或轉發連結，謝謝～"
